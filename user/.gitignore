@@ -1,6 +1,10 @@
 # compiled output
+/dist
 /node_modules
 /database
+
+package-lock.json
+.env
 # Logs
 logs
 *.log
@@ -10,7 +14,6 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-package-lock.json
 # OS
 .DS_Store
 
