@@ -15,7 +15,7 @@ import { UserDto } from '../dto/userDto.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  @UseGuards(AuthGuard('jwt'))
+//   @UseGuards(AuthGuard('jwt'))
   @Post('register')
   async registerUser(@Body() body: UserDto) {
     const user = await this.authService.register(body);
