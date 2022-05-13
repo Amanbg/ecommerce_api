@@ -1,7 +1,6 @@
 import { SequelizeModule } from '@nestjs/sequelize';
 
 import { User } from "../schemas/user.schema";
-import { Role } from "../schemas/role.schema";
 
 import {DynamicModule} from '@nestjs/common';
 import { config } from "dotenv";
@@ -16,6 +15,6 @@ export function Database(): DynamicModule {
       username: process.env.PGSQL_USERNAME,
       password: process.env.PGSQL_PASSWORD,
       database: process.env.PGSQL_DATABASE,
-      models: [User, Role],
+      models: [User],
     });
   }
