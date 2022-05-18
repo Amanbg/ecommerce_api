@@ -27,7 +27,16 @@ export class UserController {
 
   @Post('create-order/:id')
   async createOrderForSeller(@Param() param, @Body() body) {
-    const sellers = await this.userService.createOrderForSeller(param.id, body);
-    return sellers;
+    const createdOrder = await this.userService.createOrderForSeller(
+      param.id,
+      body,
+    );
+    return createdOrder;
+  }
+
+  @Post('create-catalog')
+  async createCatalogForSeller(@Body() body) {
+    const createdCatalog = await this.userService.createCatalogForSeller(body);
+    return createdCatalog;
   }
 }

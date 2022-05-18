@@ -44,32 +44,55 @@ export class UserService {
   }
 
   async createOrderForSeller(sellerId, payload): Promise<any> {
-    const user = await User.findOne({
-      where: {
-        id: sellerId,
-      },
-      attributes: ['id'],
-    });
+    try {
+      const user = await User.findOne({
+        where: {
+          id: sellerId,
+        },
+        attributes: ['id'],
+      });
 
-    if (!user) {
-      throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+      if (!user) {
+        throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+      }
+
+      const order = new Order();
+
+      const catalog = await Catalog.findOne({
+        where: {
+          id: sellerId,
+        },
+        attributes: ['id'],
+      });
+
+      order.userId = sellerId;
+      order.catalogId = catalog.id;
+      order.products = payload.items;
+
+      await order.save();
+
+      return order;
+    } catch (error) {
+      throw new HttpException(
+        'Order creation failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
+  }
 
-    const order = new Order();
+  async createCatalogForSeller(payload): Promise<any> {
+    try {
+      const data = payload;
 
-    const catalog = await Catalog.findOne({
-      where: {
-        id: sellerId,
-      },
-      attributes: ['id'],
-    });
+      const catalog = new Catalog(data);
 
-    order.userId = sellerId;
-    order.catalogId = catalog.id;
-    order.products = payload.items;
-
-    await order.save();
-
-    return order;
+      catalog.save();
+      return catalog;
+    } catch (error) {
+      throw new HttpException(
+        'Catalog creation failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
