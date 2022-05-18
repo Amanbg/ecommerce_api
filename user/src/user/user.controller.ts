@@ -39,4 +39,9 @@ export class UserController {
     const createdCatalog = await this.userService.createCatalogForSeller(body);
     return createdCatalog;
   }
+  @Get('orders')
+  async getOrderReceivedBySeller() {
+    const orders = await this.userService.getOrderReceivedBySeller();
+    return orders;
+  }
 }

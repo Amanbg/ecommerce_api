@@ -16,31 +16,35 @@ export class UserService {
   }
 
   async getCatalogBySeller(id): Promise<any> {
-    const sellerId = id;
+    try {
+      const sellerId = id;
 
-    if (!sellerId) {
-      throw new HttpException('Invalid request', HttpStatus.BAD_REQUEST);
+      if (!sellerId) {
+        throw new HttpException('Seller Id missing', HttpStatus.BAD_REQUEST);
+      }
+
+      const user = await User.findOne({
+        where: {
+          id: sellerId,
+        },
+        attributes: ['id'],
+      });
+
+      if (!user) {
+        throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+      }
+
+      const existingUsers = await Catalog.findOne({
+        where: {
+          userId: sellerId,
+        },
+        attributes: ['id', 'userId', 'products'],
+      });
+
+      return existingUsers;
+    } catch (error) {
+      throw error;
     }
-
-    const user = await User.findOne({
-      where: {
-        id: sellerId,
-      },
-      attributes: ['id'],
-    });
-
-    if (!user) {
-      throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
-    }
-
-    const existingUsers = await Catalog.findOne({
-      where: {
-        userId: sellerId,
-      },
-      attributes: ['id', 'userId', 'products'],
-    });
-
-    return existingUsers;
   }
 
   async createOrderForSeller(sellerId, payload): Promise<any> {
@@ -73,10 +77,7 @@ export class UserService {
 
       return order;
     } catch (error) {
-      throw new HttpException(
-        'Order creation failed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw error;
     }
   }
 
@@ -84,15 +85,67 @@ export class UserService {
     try {
       const data = payload;
 
-      const catalog = new Catalog(data);
+      if (!data.userId || !data.products || data.products.length === 0) {
+        throw new HttpException(
+          'Catalog creation failed, missing data (userId or products)',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
-      catalog.save();
-      return catalog;
+      const catalog = await Catalog.findOne({
+        where: {
+          userId: data.userId,
+        },
+        attributes: ['userId'],
+      });
+
+      if (catalog.userId) {
+        throw new HttpException(
+          'Catalog already exists for this seller',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const catalogData = new Catalog(data);
+
+      catalogData.save();
+
+      return catalogData;
     } catch (error) {
-      throw new HttpException(
-        'Catalog creation failed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw error;
+    }
+  }
+
+  //TODO: get userId by token
+  async getOrderReceivedBySeller(): Promise<any> {
+    try {
+      const user = await User.findOne({
+        where: {
+          id: 1,
+        },
+        attributes: ['id', 'type'],
+      });
+
+      if (!user) {
+        throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+      }
+
+      if (user.type !== 'seller') {
+        throw new HttpException(
+          'order cannot get for buyer',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const order = Order.findAll({
+        where: {
+          userId: 1,
+        },
+        attributes: ['catalogId', 'userId', 'products'],
+      });
+
+      return order;
+    } catch (error) {
+      throw error;
     }
   }
 }
