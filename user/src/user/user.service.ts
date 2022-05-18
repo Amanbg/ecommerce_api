@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { User } from 'database';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { User, Catalog } from 'database';
 
 @Injectable()
 export class UserService {
@@ -15,48 +15,53 @@ export class UserService {
     return sellers;
   }
 
-//   async getCatalogBySeller(payload): Promise<any> {
-//     const data = payload;
+  async getCatalogBySeller(id): Promise<any> {
+    const sellerId = id;
 
-//     const user = new User(data);
+    if (!sellerId) {
+      throw new HttpException('Invalid request', HttpStatus.BAD_REQUEST);
+    }
 
-//     const existingUsers = await User.findAndCountAll({
-//       where: {
-//         [Op.and]: [{ username: user.username }, { type: user.type }],
-//       },
-//     });
+    const user = await User.findOne({
+      where: {
+        id: sellerId,
+      },
+      attributes: ['id'],
+    });
 
-//     data.status = UserStatus.ACTIVE;
+    if (!user) {
+      throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+    }
 
-//     if (existingUsers.count > 0) {
-//       throw new NotAcceptableException(
-//         'User with this username and type already exists',
-//       );
-//     }
-//     await user.save();
+    const existingUsers = await Catalog.findOne({
+      where: {
+        userId: sellerId,
+      },
+      attributes: ['id', 'userId', 'products'],
+    });
 
-//     return user;
-//   }
-//   async createOrderForSeller(payload): Promise<any> {
-//     const data = payload;
+    return existingUsers;
+  }
+  //   async createOrderForSeller(payload): Promise<any> {
+  //     const data = payload;
 
-//     const user = new User(data);
+  //     const user = new User(data);
 
-//     const existingUsers = await User.findAndCountAll({
-//       where: {
-//         [Op.and]: [{ username: user.username }, { type: user.type }],
-//       },
-//     });
+  //     const existingUsers = await User.findAndCountAll({
+  //       where: {
+  //         [Op.and]: [{ username: user.username }, { type: user.type }],
+  //       },
+  //     });
 
-//     data.status = UserStatus.ACTIVE;
+  //     data.status = UserStatus.ACTIVE;
 
-//     if (existingUsers.count > 0) {
-//       throw new NotAcceptableException(
-//         'User with this username and type already exists',
-//       );
-//     }
-//     await user.save();
+  //     if (existingUsers.count > 0) {
+  //       throw new NotAcceptableException(
+  //         'User with this username and type already exists',
+  //       );
+  //     }
+  //     await user.save();
 
-//     return user;
-//   }
+  //     return user;
+  //   }
 }

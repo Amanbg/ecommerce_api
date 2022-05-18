@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Param } from '@nestjs/common';
 
 import { UserService } from './user.service';
 
@@ -11,11 +11,12 @@ export class UserController {
     return sellers;
   }
 
-//   @Get('seller-catalog/:id')
-//   async getCatalogBySeller() {
-//     const sellers = await this.userService.getCatalogBySeller();
-//     return sellers;
-//   }
+  @Get('seller-catalog/:id')
+  async getCatalogBySeller(@Param() param) {
+  
+    const sellers = await this.userService.getCatalogBySeller(param.id);
+    return sellers;
+  }
 
 //   @Get('create-order/:id')
 //   async createOrderForSeller() {
