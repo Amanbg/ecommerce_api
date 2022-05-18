@@ -1,4 +1,12 @@
-import { Controller, Get, HttpException, HttpStatus, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Body,
+  Post,
+} from '@nestjs/common';
 
 import { UserService } from './user.service';
 
@@ -13,14 +21,13 @@ export class UserController {
 
   @Get('seller-catalog/:id')
   async getCatalogBySeller(@Param() param) {
-  
     const sellers = await this.userService.getCatalogBySeller(param.id);
     return sellers;
   }
 
-//   @Get('create-order/:id')
-//   async createOrderForSeller() {
-//     const sellers = await this.userService.createOrderForSeller();
-//     return sellers;
-//   }
+  @Post('create-order/:id')
+  async createOrderForSeller(@Param() param, @Body() body) {
+    const sellers = await this.userService.createOrderForSeller(param.id, body);
+    return sellers;
+  }
 }

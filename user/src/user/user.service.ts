@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User, Catalog } from 'database';
+import { User, Catalog, Order } from 'database';
 
 @Injectable()
 export class UserService {
@@ -42,26 +42,34 @@ export class UserService {
 
     return existingUsers;
   }
-  //   async createOrderForSeller(payload): Promise<any> {
-  //     const data = payload;
 
-  //     const user = new User(data);
+  async createOrderForSeller(sellerId, payload): Promise<any> {
+    const user = await User.findOne({
+      where: {
+        id: sellerId,
+      },
+      attributes: ['id'],
+    });
 
-  //     const existingUsers = await User.findAndCountAll({
-  //       where: {
-  //         [Op.and]: [{ username: user.username }, { type: user.type }],
-  //       },
-  //     });
+    if (!user) {
+      throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
+    }
 
-  //     data.status = UserStatus.ACTIVE;
+    const order = new Order();
 
-  //     if (existingUsers.count > 0) {
-  //       throw new NotAcceptableException(
-  //         'User with this username and type already exists',
-  //       );
-  //     }
-  //     await user.save();
+    const catalog = await Catalog.findOne({
+      where: {
+        id: sellerId,
+      },
+      attributes: ['id'],
+    });
 
-  //     return user;
-  //   }
+    order.userId = sellerId;
+    order.catalogId = catalog.id;
+    order.products = payload.items;
+
+    await order.save();
+
+    return order;
+  }
 }
