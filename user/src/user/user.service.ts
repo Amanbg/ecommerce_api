@@ -115,21 +115,20 @@ export class UserService {
     }
   }
 
-  //TODO: get userId by token
-  async getOrderReceivedBySeller(): Promise<any> {
+  async getOrderReceivedBySeller(userDetails): Promise<any> {
     try {
-      const user = await User.findOne({
+      const existedUser = await User.findOne({
         where: {
-          id: 1,
+          id: userDetails.user.id,
         },
         attributes: ['id', 'type'],
       });
 
-      if (!user) {
+      if (!existedUser) {
         throw new HttpException('User not Found', HttpStatus.NOT_FOUND);
       }
 
-      if (user.type !== 'seller') {
+      if (existedUser.type !== 'seller') {
         throw new HttpException(
           'order cannot get for buyer',
           HttpStatus.BAD_REQUEST,
@@ -138,7 +137,7 @@ export class UserService {
 
       const order = Order.findAll({
         where: {
-          userId: 1,
+          userId: userDetails.user.id,
         },
         attributes: ['catalogId', 'userId', 'products'],
       });
